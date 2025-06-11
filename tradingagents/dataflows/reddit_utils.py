@@ -1,8 +1,5 @@
-import requests
-import time
 import json
-from datetime import datetime, timedelta
-from contextlib import contextmanager
+from datetime import datetime
 from typing import Annotated
 import os
 import re
@@ -55,7 +52,8 @@ def fetch_top_from_category(
     ],
     date: Annotated[str, "Date to fetch top posts from."],
     max_limit: Annotated[int, "Maximum number of posts to fetch."],
-    query: Annotated[str, "Optional query to search for in the subreddit."] = None,
+    query: Annotated[str,
+                     "Optional query to search for in the subreddit."] = None,
     data_path: Annotated[
         str,
         "Path to the data folder. Default is 'reddit_data'.",
@@ -128,7 +126,8 @@ def fetch_top_from_category(
                 all_content_curr_subreddit.append(post)
 
         # sort all_content_curr_subreddit by upvote_ratio in descending order
-        all_content_curr_subreddit.sort(key=lambda x: x["upvotes"], reverse=True)
+        all_content_curr_subreddit.sort(
+            key=lambda x: x["upvotes"], reverse=True)
 
         all_content.extend(all_content_curr_subreddit[:limit_per_subreddit])
 

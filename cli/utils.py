@@ -1,5 +1,5 @@
 import questionary
-from typing import List, Optional, Tuple, Dict
+from typing import List
 
 from cli.models import AnalystType
 
@@ -15,7 +15,8 @@ def get_ticker() -> str:
     """Prompt the user to enter a ticker symbol."""
     ticker = questionary.text(
         "Enter the ticker symbol to analyze:",
-        validate=lambda x: len(x.strip()) > 0 or "Please enter a valid ticker symbol.",
+        validate=lambda x: len(
+            x.strip()) > 0 or "Please enter a valid ticker symbol.",
         style=questionary.Style(
             [
                 ("text", "fg:green"),
@@ -72,7 +73,8 @@ def select_analysts() -> List[AnalystType]:
             questionary.Choice(display, value=value) for display, value in ANALYST_ORDER
         ],
         instruction="\n- Press Space to select/unselect analysts\n- Press 'a' to select/unselect all\n- Press Enter when done",
-        validate=lambda x: len(x) > 0 or "You must select at least one analyst.",
+        validate=lambda x: len(
+            x) > 0 or "You must select at least one analyst.",
         style=questionary.Style(
             [
                 ("checkbox-selected", "fg:green"),
@@ -189,7 +191,8 @@ def select_deep_thinking_agent() -> str:
     ).ask()
 
     if choice is None:
-        console.print("\n[red]No deep thinking llm engine selected. Exiting...[/red]")
+        console.print(
+            "\n[red]No deep thinking llm engine selected. Exiting...[/red]")
         exit(1)
 
     return choice

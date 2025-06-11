@@ -3,8 +3,7 @@
 import os
 from pathlib import Path
 import json
-from datetime import date
-from typing import Dict, Any, Tuple, List, Optional
+from typing import Dict, Any
 
 from langchain_openai import ChatOpenAI
 from langgraph.prebuilt import ToolNode
@@ -12,12 +11,7 @@ from langgraph.prebuilt import ToolNode
 from tradingagents.agents import *
 from tradingagents.default_config import DEFAULT_CONFIG
 from tradingagents.agents.utils.memory import FinancialSituationMemory
-from tradingagents.agents.utils.agent_states import (
-    AgentState,
-    InvestDebateState,
-    RiskDebateState,
-)
-from tradingagents.dataflows.interface import set_config
+from tradingagents.dataflows.config import set_config
 
 from .conditional_logic import ConditionalLogic
 from .setup import GraphSetup
@@ -55,7 +49,8 @@ class TradingAgentsGraph:
         )
 
         # Initialize LLMs
-        self.deep_thinking_llm = ChatOpenAI(model=self.config["deep_think_llm"])
+        self.deep_thinking_llm = ChatOpenAI(
+            model=self.config["deep_think_llm"])
         self.quick_thinking_llm = ChatOpenAI(
             model=self.config["quick_think_llm"], temperature=0.1
         )
@@ -65,8 +60,10 @@ class TradingAgentsGraph:
         self.bull_memory = FinancialSituationMemory("bull_memory")
         self.bear_memory = FinancialSituationMemory("bear_memory")
         self.trader_memory = FinancialSituationMemory("trader_memory")
-        self.invest_judge_memory = FinancialSituationMemory("invest_judge_memory")
-        self.risk_manager_memory = FinancialSituationMemory("risk_manager_memory")
+        self.invest_judge_memory = FinancialSituationMemory(
+            "invest_judge_memory")
+        self.risk_manager_memory = FinancialSituationMemory(
+            "risk_manager_memory")
 
         # Create tool nodes
         self.tool_nodes = self._create_tool_nodes()
@@ -211,7 +208,8 @@ class TradingAgentsGraph:
         }
 
         # Save to file
-        directory = Path(f"eval_results/{self.ticker}/TradingAgentsStrategy_logs/")
+        directory = Path(
+            f"eval_results/{self.ticker}/TradingAgentsStrategy_logs/")
         directory.mkdir(parents=True, exist_ok=True)
 
         with open(

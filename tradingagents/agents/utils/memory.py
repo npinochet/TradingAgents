@@ -1,14 +1,14 @@
 import chromadb
 from chromadb.config import Settings
 from openai import OpenAI
-import numpy as np
 
 
 class FinancialSituationMemory:
     def __init__(self, name):
         self.client = OpenAI()
         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
-        self.situation_collection = self.chroma_client.create_collection(name=name)
+        self.situation_collection = self.chroma_client.create_collection(
+            name=name)
 
     def get_embedding(self, text):
         """Get OpenAI embedding for a text"""

@@ -1,15 +1,13 @@
-import time
-import json
-
-
 def create_neutral_debator(llm):
     def neutral_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
         neutral_history = risk_debate_state.get("neutral_history", "")
 
-        current_risky_response = risk_debate_state.get("current_risky_response", "")
-        current_safe_response = risk_debate_state.get("current_safe_response", "")
+        current_risky_response = risk_debate_state.get(
+            "current_risky_response", "")
+        current_safe_response = risk_debate_state.get(
+            "current_safe_response", "")
 
         market_research_report = state["market_report"]
         sentiment_report = state["sentiment_report"]

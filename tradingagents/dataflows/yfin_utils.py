@@ -6,7 +6,7 @@ from pandas import DataFrame
 import pandas as pd
 from functools import wraps
 
-from .utils import save_output, SavePathType, decorate_all_methods
+from .utils import SavePathType, decorate_all_methods
 
 
 def init_ticker(func: Callable) -> Callable:
@@ -108,7 +108,8 @@ class YFinanceUtils:
             return None, 0  # No recommendations available
 
         # Assuming 'period' column exists and needs to be excluded
-        row_0 = recommendations.iloc[0, 1:]  # Exclude 'period' column if necessary
+        # Exclude 'period' column if necessary
+        row_0 = recommendations.iloc[0, 1:]
 
         # Find the maximum voting result
         max_votes = row_0.max()

@@ -1,19 +1,17 @@
-from typing import Annotated, Dict
+from typing import Annotated
 from .reddit_utils import fetch_top_from_category
 from .yfin_utils import *
 from .stockstats_utils import *
 from .googlenews_utils import *
 from .finnhub_utils import get_data_in_range
 from dateutil.relativedelta import relativedelta
-from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
-import json
 import os
 import pandas as pd
 from tqdm import tqdm
 import yfinance as yf
 from openai import OpenAI
-from .config import get_config, set_config, DATA_DIR
+from .config import DATA_DIR
 
 
 def get_finnhub_news(
@@ -40,7 +38,8 @@ def get_finnhub_news(
     before = start_date - relativedelta(days=look_back_days)
     before = before.strftime("%Y-%m-%d")
 
-    result = get_data_in_range(ticker, before, curr_date, "news_data", DATA_DIR)
+    result = get_data_in_range(
+        ticker, before, curr_date, "news_data", DATA_DIR)
 
     if len(result) == 0:
         return ""
@@ -51,7 +50,8 @@ def get_finnhub_news(
             continue
         for entry in data:
             current_news = (
-                "### " + entry["headline"] + f" ({day})" + "\n" + entry["summary"]
+                "### " + entry["headline"] +
+                f" ({day})" + "\n" + entry["summary"]
             )
             combined_result += current_news + "\n\n"
 
@@ -79,7 +79,8 @@ def get_finnhub_company_insider_sentiment(
     before = date_obj - relativedelta(days=look_back_days)
     before = before.strftime("%Y-%m-%d")
 
-    data = get_data_in_range(ticker, before, curr_date, "insider_senti", DATA_DIR)
+    data = get_data_in_range(ticker, before, curr_date,
+                             "insider_senti", DATA_DIR)
 
     if len(data) == 0:
         return ""
@@ -120,7 +121,8 @@ def get_finnhub_company_insider_transactions(
     before = date_obj - relativedelta(days=look_back_days)
     before = before.strftime("%Y-%m-%d")
 
-    data = get_data_in_range(ticker, before, curr_date, "insider_trans", DATA_DIR)
+    data = get_data_in_range(ticker, before, curr_date,
+                             "insider_trans", DATA_DIR)
 
     if len(data) == 0:
         return ""
@@ -161,14 +163,17 @@ def get_simfin_balance_sheet(
     df = pd.read_csv(data_path, sep=";")
 
     # Convert date strings to datetime objects and remove any time components
-    df["Report Date"] = pd.to_datetime(df["Report Date"], utc=True).dt.normalize()
-    df["Publish Date"] = pd.to_datetime(df["Publish Date"], utc=True).dt.normalize()
+    df["Report Date"] = pd.to_datetime(
+        df["Report Date"], utc=True).dt.normalize()
+    df["Publish Date"] = pd.to_datetime(
+        df["Publish Date"], utc=True).dt.normalize()
 
     # Convert the current date to datetime and normalize
     curr_date_dt = pd.to_datetime(curr_date, utc=True).normalize()
 
     # Filter the DataFrame for the given ticker and for reports that were published on or before the current date
-    filtered_df = df[(df["Ticker"] == ticker) & (df["Publish Date"] <= curr_date_dt)]
+    filtered_df = df[(df["Ticker"] == ticker) & (
+        df["Publish Date"] <= curr_date_dt)]
 
     # Check if there are any available reports; if not, return a notification
     if filtered_df.empty:
@@ -176,7 +181,8 @@ def get_simfin_balance_sheet(
         return ""
 
     # Get the most recent balance sheet by selecting the row with the latest Publish Date
-    latest_balance_sheet = filtered_df.loc[filtered_df["Publish Date"].idxmax()]
+    latest_balance_sheet = filtered_df.loc[filtered_df["Publish Date"].idxmax(
+    )]
 
     # drop the SimFinID column
     latest_balance_sheet = latest_balance_sheet.drop("SimFinId")
@@ -208,14 +214,17 @@ def get_simfin_cashflow(
     df = pd.read_csv(data_path, sep=";")
 
     # Convert date strings to datetime objects and remove any time components
-    df["Report Date"] = pd.to_datetime(df["Report Date"], utc=True).dt.normalize()
-    df["Publish Date"] = pd.to_datetime(df["Publish Date"], utc=True).dt.normalize()
+    df["Report Date"] = pd.to_datetime(
+        df["Report Date"], utc=True).dt.normalize()
+    df["Publish Date"] = pd.to_datetime(
+        df["Publish Date"], utc=True).dt.normalize()
 
     # Convert the current date to datetime and normalize
     curr_date_dt = pd.to_datetime(curr_date, utc=True).normalize()
 
     # Filter the DataFrame for the given ticker and for reports that were published on or before the current date
-    filtered_df = df[(df["Ticker"] == ticker) & (df["Publish Date"] <= curr_date_dt)]
+    filtered_df = df[(df["Ticker"] == ticker) & (
+        df["Publish Date"] <= curr_date_dt)]
 
     # Check if there are any available reports; if not, return a notification
     if filtered_df.empty:
@@ -255,14 +264,17 @@ def get_simfin_income_statements(
     df = pd.read_csv(data_path, sep=";")
 
     # Convert date strings to datetime objects and remove any time components
-    df["Report Date"] = pd.to_datetime(df["Report Date"], utc=True).dt.normalize()
-    df["Publish Date"] = pd.to_datetime(df["Publish Date"], utc=True).dt.normalize()
+    df["Report Date"] = pd.to_datetime(
+        df["Report Date"], utc=True).dt.normalize()
+    df["Publish Date"] = pd.to_datetime(
+        df["Publish Date"], utc=True).dt.normalize()
 
     # Convert the current date to datetime and normalize
     curr_date_dt = pd.to_datetime(curr_date, utc=True).normalize()
 
     # Filter the DataFrame for the given ticker and for reports that were published on or before the current date
-    filtered_df = df[(df["Ticker"] == ticker) & (df["Publish Date"] <= curr_date_dt)]
+    filtered_df = df[(df["Ticker"] == ticker) & (
+        df["Publish Date"] <= curr_date_dt)]
 
     # Check if there are any available reports; if not, return a notification
     if filtered_df.empty:
@@ -331,7 +343,8 @@ def get_reddit_global_news(
     curr_date = datetime.strptime(before, "%Y-%m-%d")
 
     total_iterations = (start_date - curr_date).days + 1
-    pbar = tqdm(desc=f"Getting Global News on {start_date}", total=total_iterations)
+    pbar = tqdm(
+        desc=f"Getting Global News on {start_date}", total=total_iterations)
 
     while curr_date <= start_date:
         curr_date_str = curr_date.strftime("%Y-%m-%d")

@@ -1,10 +1,7 @@
-from typing import Annotated, Sequence
-from datetime import date, timedelta, datetime
-from typing_extensions import TypedDict, Optional
-from langchain_openai import ChatOpenAI
+from typing import Annotated
+from typing_extensions import TypedDict
 from tradingagents.agents import *
-from langgraph.prebuilt import ToolNode
-from langgraph.graph import END, StateGraph, START, MessagesState
+from langgraph.graph import MessagesState
 
 
 # Researcher team state
@@ -18,7 +15,8 @@ class InvestDebateState(TypedDict):
     history: Annotated[str, "Conversation history"]  # Conversation history
     current_response: Annotated[str, "Latest response"]  # Last response
     judge_decision: Annotated[str, "Final judge decision"]  # Last response
-    count: Annotated[int, "Length of the current conversation"]  # Conversation length
+    # Conversation length
+    count: Annotated[int, "Length of the current conversation"]
 
 
 # Risk management team state
@@ -44,11 +42,13 @@ class RiskDebateState(TypedDict):
         str, "Latest response by the neutral analyst"
     ]  # Last response
     judge_decision: Annotated[str, "Judge's decision"]
-    count: Annotated[int, "Length of the current conversation"]  # Conversation length
+    # Conversation length
+    count: Annotated[int, "Length of the current conversation"]
 
 
 class AgentState(MessagesState):
-    company_of_interest: Annotated[str, "Company that we are interested in trading"]
+    company_of_interest: Annotated[str,
+                                   "Company that we are interested in trading"]
     trade_date: Annotated[str, "What date we are trading at"]
 
     sender: Annotated[str, "Agent that sent this message"]
@@ -59,7 +59,8 @@ class AgentState(MessagesState):
     news_report: Annotated[
         str, "Report from the News Researcher of current world affairs"
     ]
-    fundamentals_report: Annotated[str, "Report from the Fundamentals Researcher"]
+    fundamentals_report: Annotated[str,
+                                   "Report from the Fundamentals Researcher"]
 
     # researcher team discussion step
     investment_debate_state: Annotated[
@@ -73,4 +74,5 @@ class AgentState(MessagesState):
     risk_debate_state: Annotated[
         RiskDebateState, "Current state of the debate on evaluating risk"
     ]
-    final_trade_decision: Annotated[str, "Final decision made by the Risk Analysts"]
+    final_trade_decision: Annotated[str,
+                                    "Final decision made by the Risk Analysts"]

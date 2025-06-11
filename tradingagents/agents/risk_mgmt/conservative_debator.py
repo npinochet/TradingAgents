@@ -1,16 +1,13 @@
-from langchain_core.messages import AIMessage
-import time
-import json
-
-
 def create_safe_debator(llm):
     def safe_node(state) -> dict:
         risk_debate_state = state["risk_debate_state"]
         history = risk_debate_state.get("history", "")
         safe_history = risk_debate_state.get("safe_history", "")
 
-        current_risky_response = risk_debate_state.get("current_risky_response", "")
-        current_neutral_response = risk_debate_state.get("current_neutral_response", "")
+        current_risky_response = risk_debate_state.get(
+            "current_risky_response", "")
+        current_neutral_response = risk_debate_state.get(
+            "current_neutral_response", "")
 
         market_research_report = state["market_report"]
         sentiment_report = state["sentiment_report"]
