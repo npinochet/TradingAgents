@@ -7,7 +7,7 @@ def create_news_analyst(llm, toolkit):
         ticker = state["company_of_interest"]
 
         if toolkit.config["online_tools"]:
-            tools = [toolkit.get_global_news_openai, toolkit.get_google_news]
+            tools = [toolkit.get_global_news_gemini, toolkit.get_google_news]
         else:
             tools = [
                 toolkit.get_finnhub_news,
@@ -23,7 +23,7 @@ def create_news_analyst(llm, toolkit):
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
-                    "system",
+                    "human",
                     "You are a helpful AI assistant, collaborating with other assistants."
                     " Use the provided tools to progress towards answering the question."
                     " If you are unable to fully answer, that's OK; another assistant with different tools"

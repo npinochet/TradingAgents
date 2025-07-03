@@ -6,7 +6,6 @@ def create_market_analyst(llm, toolkit):
     def market_analyst_node(state):
         current_date = state["trade_date"]
         ticker = state["company_of_interest"]
-        company_name = state["company_of_interest"]
 
         if toolkit.config["online_tools"]:
             tools = [
@@ -51,7 +50,7 @@ Volume-Based Indicators:
         prompt = ChatPromptTemplate.from_messages(
             [
                 (
-                    "system",
+                    "human",
                     "You are a helpful AI assistant, collaborating with other assistants."
                     " Use the provided tools to progress towards answering the question."
                     " If you are unable to fully answer, that's OK; another assistant with different tools"

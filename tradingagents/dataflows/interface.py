@@ -10,8 +10,11 @@ import os
 import pandas as pd
 from tqdm import tqdm
 import yfinance as yf
-from openai import OpenAI
-from .config import DATA_DIR
+from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_tavily import TavilySearch
+from langchain.agents import AgentExecutor, create_react_agent
+from langchain import hub
+from .config import DATA_DIR, get_config
 
 
 def get_finnhub_news(
@@ -715,103 +718,42 @@ def get_YFin_data(
     return filtered_data
 
 
-def get_stock_news_openai(ticker, curr_date):
-    client = OpenAI()
-
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=[
-            {
-                "role": "system",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": f"Can you search Social Media for {ticker} on TSLA from 7 days before {curr_date} to {curr_date}? Make sure you only get the data posted during that period.",
-                    }
-                ],
-            }
-        ],
-        text={"format": {"type": "text"}},
-        reasoning={},
-        tools=[
-            {
-                "type": "web_search_preview",
-                "user_location": {"type": "approximate"},
-                "search_context_size": "low",
-            }
-        ],
-        temperature=1,
-        max_output_tokens=4096,
-        top_p=1,
-        store=True,
-    )
-
-    return response.output[1].content[0].text
+# Pull the ReAct agent prompt template
+prompt_template = hub.pull("hwchase17/react")
 
 
-def get_global_news_openai(curr_date):
-    client = OpenAI()
-
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=[
-            {
-                "role": "system",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": f"Can you search global or macroeconomics news from 7 days before {curr_date} to {curr_date} that would be informative for trading purposes? Make sure you only get the data posted during that period.",
-                    }
-                ],
-            }
-        ],
-        text={"format": {"type": "text"}},
-        reasoning={},
-        tools=[
-            {
-                "type": "web_search_preview",
-                "user_location": {"type": "approximate"},
-                "search_context_size": "low",
-            }
-        ],
-        temperature=1,
-        max_output_tokens=4096,
-        top_p=1,
-        store=True,
-    )
-
-    return response.output[1].content[0].text
+def create_search_agent(llm):
+    tools = [TavilySearch(
+        max_results=10, include_answer="advanced", include_raw_content="text")]
+    agent = create_react_agent(llm, tools, prompt_template)
+    return AgentExecutor(agent=agent, tools=tools, handle_parsing_errors=True)
 
 
-def get_fundamentals_openai(ticker, curr_date):
-    client = OpenAI()
+def get_stock_news_gemini(ticker, curr_date):
+    config = get_config()
+    llm = ChatGoogleGenerativeAI(
+        model=config["quick_think_llm"], temperature=0)
+    agent_executor = create_search_agent(llm)
+    prompt = f"Search for the latest social media news and discussions about the stock ticker {ticker} from 7 days before {curr_date}. Summarize the findings and sentiment in a comprehensive report."
+    result = agent_executor.invoke({"input": prompt})
+    return result["output"]
 
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=[
-            {
-                "role": "system",
-                "content": [
-                    {
-                        "type": "input_text",
-                        "text": f"Can you search Fundamental for discussions on {ticker} during of the month before {curr_date} to the month of {curr_date}. Make sure you only get the data posted during that period. List as a table, with PE/PS/Cash flow/ etc",
-                    }
-                ],
-            }
-        ],
-        text={"format": {"type": "text"}},
-        reasoning={},
-        tools=[
-            {
-                "type": "web_search_preview",
-                "user_location": {"type": "approximate"},
-                "search_context_size": "low",
-            }
-        ],
-        temperature=1,
-        max_output_tokens=4096,
-        top_p=1,
-        store=True,
-    )
 
-    return response.output[1].content[0].text
+def get_global_news_gemini(curr_date):
+    config = get_config()
+    llm = ChatGoogleGenerativeAI(
+        model=config["quick_think_llm"], temperature=0)
+    agent_executor = create_search_agent(llm)
+    prompt = f"Search for global macroeconomics news from 7 days before {curr_date} that would be informative for trading purposes. Summarize the key events and their potential market impact in a report."
+    result = agent_executor.invoke({"input": prompt})
+    return result["output"]
+
+
+def get_fundamentals_gemini(ticker, curr_date):
+    config = get_config()
+    llm = ChatGoogleGenerativeAI(
+        model=config["quick_think_llm"], temperature=0)
+    agent_executor = create_search_agent(llm)
+    prompt = f"Search for fundamental data and analysis for the stock ticker {ticker}, focusing on the current month of today's {curr_date} and the month prior. Your report should include key metrics like P/E ratio, P/S ratio, cash flow, and any recent analyst ratings or earnings reports. Present the key metrics in a markdown table."
+    result = agent_executor.invoke({"input": prompt})
+    return result["output"]

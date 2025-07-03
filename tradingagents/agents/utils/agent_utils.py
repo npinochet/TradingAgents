@@ -350,58 +350,58 @@ class Toolkit:
 
     @staticmethod
     @tool
-    def get_stock_news_openai(
+    def get_stock_news_gemini(
         ticker: Annotated[str, "the company's ticker"],
         curr_date: Annotated[str, "Current date in yyyy-mm-dd format"],
     ):
         """
-        Retrieve the latest news about a given stock by using OpenAI's news API.
+        Retrieve the latest news about a given stock by using Gemini's search API.
         Args:
             ticker (str): Ticker of a company. e.g. AAPL, TSM
             curr_date (str): Current date in yyyy-mm-dd format
         Returns:
-            str: A formatted string containing the latest news about the company on the given date.
+            str: A formatted string containing the latest weekly news about the company on the last 7 days from the given date.
         """
 
-        openai_news_results = interface.get_stock_news_openai(
+        gemini_news_results = interface.get_stock_news_gemini(
             ticker, curr_date)
 
-        return openai_news_results
+        return gemini_news_results
 
     @staticmethod
     @tool
-    def get_global_news_openai(
+    def get_global_news_gemini(
         curr_date: Annotated[str, "Current date in yyyy-mm-dd format"],
     ):
         """
-        Retrieve the latest macroeconomics news on a given date using OpenAI's macroeconomics news API.
+        Retrieve the latest macroeconomics news on a given date using Gemini's search API.
         Args:
             curr_date (str): Current date in yyyy-mm-dd format
         Returns:
-            str: A formatted string containing the latest macroeconomic news on the given date.
+            str: A formatted string containing the latest weekly macroeconomic news on the last 7 days from the given date.
         """
 
-        openai_news_results = interface.get_global_news_openai(curr_date)
+        gemini_news_results = interface.get_global_news_gemini(curr_date)
 
-        return openai_news_results
+        return gemini_news_results
 
     @staticmethod
     @tool
-    def get_fundamentals_openai(
+    def get_fundamentals_gemini(
         ticker: Annotated[str, "the company's ticker"],
         curr_date: Annotated[str, "Current date in yyyy-mm-dd format"],
     ):
         """
-        Retrieve the latest fundamental information about a given stock on a given date by using OpenAI's news API.
+        Retrieve the latest fundamental information about a given stock on a given date by using Gemini's search API.
         Args:
             ticker (str): Ticker of a company. e.g. AAPL, TSM
             curr_date (str): Current date in yyyy-mm-dd format
         Returns:
-            str: A formatted string containing the latest fundamental information about the company on the given date.
+            str: A formatted string containing the latest monthly fundamental information and news about the company on the last month from the given date.
         """
 
-        openai_fundamentals_results = interface.get_fundamentals_openai(
+        gemini_fundamentals_results = interface.get_fundamentals_gemini(
             ticker, curr_date
         )
 
-        return openai_fundamentals_results
+        return gemini_fundamentals_results

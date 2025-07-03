@@ -5,7 +5,7 @@ from pathlib import Path
 import json
 from typing import Dict, Any
 
-from langchain_openai import ChatOpenAI
+from langchain_google_genai import ChatGoogleGenerativeAI
 from langgraph.prebuilt import ToolNode
 
 from tradingagents.agents import *
@@ -49,10 +49,10 @@ class TradingAgentsGraph:
         )
 
         # Initialize LLMs
-        self.deep_thinking_llm = ChatOpenAI(
-            model=self.config["deep_think_llm"])
-        self.quick_thinking_llm = ChatOpenAI(
-            model=self.config["quick_think_llm"], temperature=0.1
+        self.deep_thinking_llm = ChatGoogleGenerativeAI(
+            model=self.config["deep_think_llm"], timeout=3600)
+        self.quick_thinking_llm = ChatGoogleGenerativeAI(
+            model=self.config["quick_think_llm"], temperature=0.1, timeout=3600
         )
         self.toolkit = Toolkit(config=self.config)
 
@@ -111,7 +111,7 @@ class TradingAgentsGraph:
             "social": ToolNode(
                 [
                     # online tools
-                    self.toolkit.get_stock_news_openai,
+                    self.toolkit.get_stock_news_gemini,
                     # offline tools
                     self.toolkit.get_reddit_stock_info,
                 ]
@@ -119,7 +119,7 @@ class TradingAgentsGraph:
             "news": ToolNode(
                 [
                     # online tools
-                    self.toolkit.get_global_news_openai,
+                    self.toolkit.get_global_news_gemini,
                     self.toolkit.get_google_news,
                     # offline tools
                     self.toolkit.get_finnhub_news,
@@ -129,7 +129,7 @@ class TradingAgentsGraph:
             "fundamentals": ToolNode(
                 [
                     # online tools
-                    self.toolkit.get_fundamentals_openai,
+                    self.toolkit.get_fundamentals_gemini,
                     # offline tools
                     self.toolkit.get_finnhub_company_insider_sentiment,
                     self.toolkit.get_finnhub_company_insider_transactions,
