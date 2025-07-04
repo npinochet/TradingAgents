@@ -73,10 +73,11 @@ Volume-Based Indicators:
         chain = prompt | llm.bind_tools(tools)
 
         result = chain.invoke(state["messages"])
+        content = result.content.strip()
 
         return {
             "messages": [result],
-            "market_report": result.content,
+            "market_report": content,
         }
 
     return market_analyst_node

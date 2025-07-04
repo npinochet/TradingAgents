@@ -14,8 +14,11 @@ def create_bear_researcher(llm, memory):
         past_memories = memory.get_memories(curr_situation, n_matches=2)
 
         past_memory_str = ""
-        for i, rec in enumerate(past_memories, 1):
-            past_memory_str += rec["recommendation"] + "\n\n"
+        if past_memories:
+            for i, rec in enumerate(past_memories, 1):
+                past_memory_str += rec["recommendation"] + "\n\n"
+        else:
+            past_memory_str = "No past memories found."
 
         prompt = f"""You are a Bear Analyst making the case against investing in the stock. Your goal is to present a well-reasoned argument emphasizing risks, challenges, and negative indicators. Leverage the provided research and data to highlight potential downsides and counter bullish arguments effectively.
 
@@ -40,8 +43,9 @@ Use this information to deliver a compelling bear argument, refute the bull's cl
 """
 
         response = llm.invoke(prompt)
+        content = response.content.strip()
 
-        argument = f"Bear Analyst: {response.content}"
+        argument = f"Bear Analyst: {content}"
 
         new_investment_debate_state = {
             "history": history + "\n" + argument,

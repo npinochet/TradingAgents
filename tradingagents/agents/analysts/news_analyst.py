@@ -45,10 +45,11 @@ def create_news_analyst(llm, toolkit):
 
         chain = prompt | llm.bind_tools(tools)
         result = chain.invoke(state["messages"])
+        content = result.content.strip()
 
         return {
             "messages": [result],
-            "news_report": result.content,
+            "news_report": content,
         }
 
     return news_analyst_node

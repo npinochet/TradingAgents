@@ -10,10 +10,8 @@ import os
 import pandas as pd
 from tqdm import tqdm
 import yfinance as yf
-from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain_tavily import TavilySearch
-from langchain.agents import AgentExecutor, create_react_agent
-from langchain import hub
+from google import genai
+from google.genai.types import Tool, GenerateContentConfig, GoogleSearch
 from .config import DATA_DIR, get_config
 
 
@@ -644,7 +642,7 @@ def get_YFin_data_window(
 def get_YFin_data_online(
     symbol: Annotated[str, "ticker symbol of the company"],
     start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
-    end_date: Annotated[str, "Start date in yyyy-mm-dd format"],
+    end_date: Annotated[str, "End date in yyyy-mm-dd format"],
 ):
 
     datetime.strptime(start_date, "%Y-%m-%d")
@@ -686,7 +684,7 @@ def get_YFin_data_online(
 def get_YFin_data(
     symbol: Annotated[str, "ticker symbol of the company"],
     start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
-    end_date: Annotated[str, "Start date in yyyy-mm-dd format"],
+    end_date: Annotated[str, "End date in yyyy-mm-dd format"],
 ) -> str:
     # read in data
     data = pd.read_csv(
@@ -718,42 +716,40 @@ def get_YFin_data(
     return filtered_data
 
 
-# Pull the ReAct agent prompt template
-prompt_template = hub.pull("hwchase17/react")
+def search_agent_gemini(model_name: str, query: str):
+    client = genai.Client()
+    response = client.models.generate_content(
+        model=model_name,
+        contents=query,
+        config=GenerateContentConfig(
+            tools=[Tool(google_search=GoogleSearch())],
+            response_modalities=["TEXT"],
+        )
+    )
+    result_text = ""
+    for part in response.candidates[0].content.parts:
+        if hasattr(part, 'text'):
+            result_text += part.text
 
-
-def create_search_agent(llm):
-    tools = [TavilySearch(
-        max_results=10, include_answer="advanced", include_raw_content="text")]
-    agent = create_react_agent(llm, tools, prompt_template)
-    return AgentExecutor(agent=agent, tools=tools, handle_parsing_errors=True)
+    return result_text
 
 
 def get_stock_news_gemini(ticker, curr_date):
     config = get_config()
-    llm = ChatGoogleGenerativeAI(
-        model=config["quick_think_llm"], temperature=0)
-    agent_executor = create_search_agent(llm)
     prompt = f"Search for the latest social media news and discussions about the stock ticker {ticker} from 7 days before {curr_date}. Summarize the findings and sentiment in a comprehensive report."
-    result = agent_executor.invoke({"input": prompt})
-    return result["output"]
+
+    return search_agent_gemini(config["quick_think_llm"], prompt)
 
 
 def get_global_news_gemini(curr_date):
     config = get_config()
-    llm = ChatGoogleGenerativeAI(
-        model=config["quick_think_llm"], temperature=0)
-    agent_executor = create_search_agent(llm)
     prompt = f"Search for global macroeconomics news from 7 days before {curr_date} that would be informative for trading purposes. Summarize the key events and their potential market impact in a report."
-    result = agent_executor.invoke({"input": prompt})
-    return result["output"]
+
+    return search_agent_gemini(config["quick_think_llm"], prompt)
 
 
 def get_fundamentals_gemini(ticker, curr_date):
     config = get_config()
-    llm = ChatGoogleGenerativeAI(
-        model=config["quick_think_llm"], temperature=0)
-    agent_executor = create_search_agent(llm)
     prompt = f"Search for fundamental data and analysis for the stock ticker {ticker}, focusing on the current month of today's {curr_date} and the month prior. Your report should include key metrics like P/E ratio, P/S ratio, cash flow, and any recent analyst ratings or earnings reports. Present the key metrics in a markdown table."
-    result = agent_executor.invoke({"input": prompt})
-    return result["output"]
+
+    return search_agent_gemini(config["quick_think_llm"], prompt)

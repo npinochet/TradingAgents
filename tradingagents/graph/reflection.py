@@ -67,7 +67,7 @@ Adhere strictly to these instructions, and ensure your output is detailed, accur
             ),
         ]
 
-        result = self.quick_thinking_llm.invoke(messages).content
+        result = self.quick_thinking_llm.invoke(messages).content.strip()
         return result
 
     def reflect_bull_researcher(self, current_state, returns_losses, bull_memory):

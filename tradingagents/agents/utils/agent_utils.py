@@ -109,7 +109,7 @@ class Toolkit:
     def get_YFin_data(
         symbol: Annotated[str, "ticker symbol of the company"],
         start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
-        end_date: Annotated[str, "Start date in yyyy-mm-dd format"],
+        end_date: Annotated[str, "End date in yyyy-mm-dd format"],
     ) -> str:
         """
         Retrieve the stock price data for a given ticker symbol from Yahoo Finance.
@@ -130,7 +130,7 @@ class Toolkit:
     def get_YFin_data_online(
         symbol: Annotated[str, "ticker symbol of the company"],
         start_date: Annotated[str, "Start date in yyyy-mm-dd format"],
-        end_date: Annotated[str, "Start date in yyyy-mm-dd format"],
+        end_date: Annotated[str, "End date in yyyy-mm-dd format"],
     ) -> str:
         """
         Retrieve the stock price data for a given ticker symbol from Yahoo Finance.

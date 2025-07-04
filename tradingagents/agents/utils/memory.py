@@ -6,9 +6,9 @@ from langchain_google_genai import GoogleGenerativeAIEmbeddings
 class FinancialSituationMemory:
     def __init__(self, name):
         self.embedding_function = GoogleGenerativeAIEmbeddings(
-            model="models/text-embedding-005")
+            model="models/text-embedding-004")
         self.chroma_client = chromadb.Client(Settings(allow_reset=True))
-        self.situation_collection = self.chroma_client.create_collection(
+        self.situation_collection = self.chroma_client.get_or_create_collection(
             name=name)
 
     def get_embedding(self, text):
@@ -39,7 +39,7 @@ class FinancialSituationMemory:
         )
 
     def get_memories(self, current_situation, n_matches=1):
-        """Find matching recommendations using OpenAI embeddings"""
+        """Find matching recommendations using Google embeddings"""
         query_embedding = self.get_embedding(current_situation)
 
         results = self.situation_collection.query(
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
     # Example query
     current_situation = """
-    Market showing increased volatility in tech sector, with institutional investors 
+    Market showing increased volatility in tech sector, with institutional investors
     reducing positions and rising interest rates affecting growth stock valuations
     """
 

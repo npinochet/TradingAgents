@@ -43,37 +43,12 @@ def create_social_media_analyst(llm, toolkit):
 
         chain = prompt | llm.bind_tools(tools)
 
-        result = chain.invoke(state["messages"])  # Error
-        # Invalid argument provided to Gemini: 400 * GenerateContentRequest.contents: contents is not specified
+        result = chain.invoke(state["messages"])
+        content = result.content.strip()
 
         return {
             "messages": [result],
-            "sentiment_report": result.content,
+            "sentiment_report": content,
         }
 
     return social_media_analyst_node
-
-
-"""
-ChatGoogleGenerativeAIError: Invalid argument provided to Gemini: 400 * GenerateContentRequest.contents: contents is not specified
-
-
-
-result = chain.invoke(state["messages"]) 
-
-llm = ChatGoogleGenerativeAI
-  model='models/gemini-2.5-flash-latest
-  google_api_key=SecretStr
-  temperature=0.1
-  client=<google.ai.generativelanguage_v1beta.services.generative_service.client.GenerativeServiceClient object at 0x10d451810
-  default_metadata=()
-
-
-state = {}
-  'messages': [HumanMessage(content='TSLA', additional_kwargs={}, response_metadata={}, id='b62a446a-6f3c-4204-adf4-bfd04107d1cb')],
-
-
-
-
-
-"""

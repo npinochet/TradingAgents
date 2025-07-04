@@ -48,10 +48,11 @@ def create_fundamentals_analyst(llm, toolkit):
         chain = prompt | llm.bind_tools(tools)
 
         result = chain.invoke(state["messages"])
+        content = result.content.strip()
 
         return {
             "messages": [result],
-            "fundamentals_report": result.content,
+            "fundamentals_report": content,
         }
 
     return fundamentals_analyst_node
