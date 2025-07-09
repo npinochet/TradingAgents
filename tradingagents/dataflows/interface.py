@@ -750,6 +750,6 @@ def get_global_news_gemini(curr_date):
 
 def get_fundamentals_gemini(ticker, curr_date):
     config = get_config()
-    prompt = f"Search for fundamental data and analysis for the stock ticker {ticker}, focusing on the current month of today's {curr_date} and the month prior. Your report should include key metrics like P/E ratio, P/S ratio, cash flow, and any recent analyst ratings or earnings reports. Present the key metrics in a markdown table."
+    prompt = f"Search for fundamental data and analysis for the stock ticker {ticker}, focusing on the current month of today's {curr_date} and the month prior. Your report should include key metrics like P/E ratio, P/S ratio, cash flow, and any recent analyst ratings or earnings reports. Present the key metrics in a Markdown table. Format tables as Github Markdown tables with minimal whitespaces, immediately add ' |' after the table heading."
 
     return search_agent_gemini(config["quick_think_llm"], prompt)
